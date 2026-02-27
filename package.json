@@ -1,0 +1,15 @@
+{
+  "name": "shortlistr",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "extension",
+    "backend"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:extension": "npm --workspace extension run dev",
+    "build:extension": "npm --workspace extension run build"
+  }
+}
+

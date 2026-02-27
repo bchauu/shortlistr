@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "Shortlistr",
+  "description": "Turn job boards into a shortlist. AI-powered job fit scoring, right on the posting.",
+  "version": "0.1.0",
+  "action": {
+    "default_title": "Shortlistr",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "src/background/service_worker.js"
+  },
+  "side_panel": {
+    "default_path": "inbox.html"
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "permissions": ["storage", "activeTab", "permissions", "sidePanel", "scripting"],
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://wellfound.com/*",
+    "https://otta.com/*",
+    "https://x.com/*",
+    "https://jobs.lever.co/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "optional_host_permissions": [
+    "https://*.onrender.com/*",
+    "https://*/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.linkedin.com/*",
+        "https://wellfound.com/*",
+        "https://otta.com/*",
+        "https://x.com/*",
+        "https://jobs.lever.co/*"
+      ],
+      "js": ["src/content/shortlistr.js"],
+      "css": ["src/content/shortlistr.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
