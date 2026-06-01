@@ -4,6 +4,10 @@
 
 Shortlistr
 
+## Category
+
+Productivity
+
 ## Tagline
 
 Read less. Apply smarter.
@@ -49,6 +53,32 @@ Default behavior:
 - Wellfound
 - Otta
 
+### Screenshots (recommended 3–5)
+
+Capture screenshots that show:
+
+1. Popup on a job posting (score + summary)
+2. Expanded details (TL;DR / concerns / highlights)
+3. Shortlist Inbox (saved roles, sorting, open selected)
+4. Options (profile + resume + thresholds)
+
+Recommended sizes: 1280×800 or 640×400 (Chrome Web Store accepts multiple sizes).
+
+## Required fields (fill in before publishing)
+
+- **Support email:** `support@YOURDOMAIN.com` (replace)
+- **Privacy policy URL:** `https://YOURDOMAIN.com/privacy` (replace)
+
 ### Not affiliated
 
 Shortlistr is not affiliated with LinkedIn, X, Wellfound, or Otta.
+
+## Permissions justification (for review)
+
+- `storage`: save your profile/resume preferences, cached scores, and saved roles.
+- `activeTab`: analyze the current tab only when you click “Analyze”.
+- `scripting`: inject the content script/CSS needed to extract job text from the page.
+- `permissions`: request optional site access only when you enable auto-analyze on a specific site.
+- `sidePanel`: show the Shortlist Inbox as a side panel.
+
+Host permissions are limited to supported job sites (and your API domain). Optional host permissions are used only for user-enabled auto-analyze on additional job-board platforms.

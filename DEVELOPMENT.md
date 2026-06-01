@@ -48,3 +48,13 @@ Backend URL is fixed inside the extension:
 - Rebuild and reload the extension
 
 Note: For local dev (`http://localhost:8787`), Chrome may prompt for permission on first sign-in (optional host permissions). For production, prefer adding your API origin to `extension/public/manifest.json` under `host_permissions` before publishing.
+
+## Chrome Web Store release ZIP
+
+To create a production-ready ZIP (with `manifest.json` at the ZIP root, no localhost endpoints, and a fixed HTTPS API base URL):
+
+1. Deploy the backend (e.g., Render) and decide your production API base URL (must be HTTPS).
+2. Run:
+   - `SHORTLISTR_API_BASE_URL="https://your-api.example.com" bash extension/scripts/package-release.sh`
+3. Upload the generated ZIP:
+   - `shortlistr-extension.zip`

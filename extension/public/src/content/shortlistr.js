@@ -161,6 +161,20 @@
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s || ""));
   }
 
+  function hasLinkedInSelectedJobIdParam(u) {
+    const knownKeys = new Set(["currentjobid", "selectedjobid", "viewjobid", "jobid", "jobpostingid", "jobpostid"]);
+    for (const [name, value] of u.searchParams.entries()) {
+      const key = String(name || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+      const v = String(value || "").trim();
+      if (!v || v.length > 120) continue;
+      if (knownKeys.has(key)) return true;
+      if (key.includes("job") && key.includes("id")) return true;
+    }
+    return false;
+  }
+
   function genericLooksLikeJobPosting({ segs }) {
     const idxJobs = segs.indexOf("jobs");
     const idxCareers = segs.indexOf("careers");
@@ -197,7 +211,7 @@
     if (source === "linkedin") {
       if (!path.startsWith("/jobs")) return false;
       if (path.includes("/jobs/view/")) return true;
-      if (path.startsWith("/jobs/search") && u.searchParams.get("currentJobId")) return true;
+      if (hasLinkedInSelectedJobIdParam(u)) return true;
       if (hasHighSignalJobDom("linkedin")) return true;
       return false;
     }
@@ -251,7 +265,7 @@
     if (source === "linkedin") {
       if (!path.startsWith("/jobs")) return false;
       if (path.includes("/jobs/view/")) return true;
-      if (path.startsWith("/jobs/search") && u.searchParams.get("currentJobId")) return true;
+      if (hasLinkedInSelectedJobIdParam(u)) return true;
       return false;
     }
 

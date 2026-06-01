@@ -924,6 +924,26 @@ function shortlistKeyForJob(job) {
   return url || `${job.source || "unknown"}:${job.title || ""}:${job.company || ""}`.slice(0, 300);
 }
 
+function linkedInJobIdFromUrl(u) {
+  const path = String(u.pathname || "").toLowerCase();
+  const m = path.match(/\/jobs\/view\/(\d+)/);
+  if (m && m[1]) return m[1];
+
+  const knownKeys = new Set(["currentjobid", "selectedjobid", "viewjobid", "jobid", "jobpostingid", "jobpostid"]);
+  let genericJobId = "";
+  for (const [name, value] of u.searchParams.entries()) {
+    const key = String(name || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+    const v = String(value || "").trim();
+    if (!v || v.length > 120) continue;
+    if (knownKeys.has(key)) return v;
+    if (!genericJobId && key.includes("job") && key.includes("id")) genericJobId = v;
+  }
+
+  return genericJobId;
+}
+
 function analysisCacheKeyForJob(job) {
   const url = normalizeUrl(job.url || "");
   const source = String(job.source || "").toLowerCase();
@@ -935,9 +955,7 @@ function analysisCacheKeyForJob(job) {
     const segs = path.split("/").filter(Boolean);
 
     if (source === "linkedin") {
-      const m = path.match(/\/jobs\/view\/(\d+)/);
-      if (m && m[1]) return `linkedin:${m[1]}`;
-      const id = u.searchParams.get("currentJobId") || "";
+      const id = linkedInJobIdFromUrl(u);
       if (id) return `linkedin:${id}`;
       return `linkedin:${u.origin}${u.pathname}`;
     }

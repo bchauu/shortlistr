@@ -1,5 +1,6 @@
 node_modules/
 dist/
+shortlistr-extension.zip
 .env
 .env.*
 
