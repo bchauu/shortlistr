@@ -82,20 +82,7 @@ const filteredHost = host.filter(
 if (!filteredHost.includes(apiOriginPattern)) filteredHost.push(apiOriginPattern);
 manifest.host_permissions = filteredHost;
 
-// Keep optional host permissions tight for store review.
-// (Manual analyze uses activeTab; optional permissions are only for user-enabled auto-analyze on more sites.)
-manifest.optional_host_permissions = [
-  "https://boards.greenhouse.io/*",
-  "https://*.greenhouse.io/*",
-  "https://jobs.ashbyhq.com/*",
-  "https://jobs.workable.com/*",
-  "https://jobs.smartrecruiters.com/*",
-  "https://jobs.jobvite.com/*",
-  "https://*.jobvite.com/*",
-  "https://*.icims.com/*",
-  "https://*.myworkdayjobs.com/*",
-  "https://*.workdayjobs.com/*"
-];
+manifest.optional_host_permissions = [];
 
 fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n", "utf8");
 NODE

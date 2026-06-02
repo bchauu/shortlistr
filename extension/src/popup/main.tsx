@@ -101,25 +101,9 @@ function App() {
     }
   }, [activeTab]);
 
-  const activeHost = useMemo(() => {
-    if (!activeTab?.url) return "";
-    try {
-      return new URL(activeTab.url).hostname || "";
-    } catch {
-      return "";
-    }
-  }, [activeTab]);
-
   const autoAnalyzeBuiltIn = useMemo(() => {
-    const host = activeHost.toLowerCase();
-    if (!host) return false;
-    if (host.includes("linkedin.com")) return true;
-    if (host.includes("wellfound.com")) return true;
-    if (host.includes("otta.com")) return true;
-    if (host === "x.com" || host.endsWith(".x.com")) return true;
-    if (host === "jobs.lever.co" || host.endsWith(".lever.co")) return true;
-    return false;
-  }, [activeHost]);
+    return Boolean(activeOriginPattern);
+  }, [activeOriginPattern]);
 
   const autoAnalyzeEnabledForSite = useMemo(() => {
     if (!activeOriginPattern) return false;

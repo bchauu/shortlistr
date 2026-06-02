@@ -4,43 +4,68 @@
   top: 16px;
   z-index: 2147483647;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-align: left;
+  color-scheme: dark;
 }
 
 #shortlistr-root * {
   box-sizing: border-box;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
 }
 
 .sl-card {
-  width: 320px;
+  width: min(380px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   background: rgba(15, 18, 28, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 14px;
   padding: 12px;
   color: #e8ecff;
   backdrop-filter: blur(10px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
 }
 
 .sl-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.sl-row > div:first-child {
+  min-width: 0;
 }
 
 .sl-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
+  margin-left: auto;
+  max-width: 100%;
 }
 
 .sl-title {
   font-weight: 800;
   font-size: 13px;
+  line-height: 1.2;
 }
 
 .sl-subtitle {
   color: rgba(232, 236, 255, 0.7);
   font-size: 11px;
+  line-height: 1.25;
   margin-top: 2px;
 }
 
@@ -52,6 +77,10 @@
   border-radius: 999px;
   padding: 4px 8px;
   font-size: 11px;
+  line-height: 1.2;
+  min-height: 24px;
+  max-width: 100%;
+  white-space: nowrap;
   color: rgba(232, 236, 255, 0.75);
 }
 
@@ -68,6 +97,7 @@
 
 .sl-score {
   font-weight: 900;
+  line-height: 1;
   color: #e8ecff;
 }
 
@@ -75,6 +105,7 @@
   margin-top: 10px;
   font-size: 12px;
   line-height: 1.35;
+  overflow-wrap: anywhere;
   color: rgba(232, 236, 255, 0.78);
 }
 
@@ -86,6 +117,7 @@
   border-radius: 12px;
   font-size: 12px;
   line-height: 1.35;
+  overflow-wrap: anywhere;
   color: rgba(232, 236, 255, 0.9);
 }
 
@@ -97,6 +129,7 @@
   border-radius: 12px;
   font-size: 12px;
   line-height: 1.35;
+  overflow-wrap: anywhere;
   color: rgba(232, 236, 255, 0.9);
 }
 
@@ -104,7 +137,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .sl-btn {
@@ -116,6 +149,9 @@
   padding: 8px 10px;
   cursor: pointer;
   font-size: 12px;
+  line-height: 1.2;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
 .sl-btn.primary {
@@ -129,12 +165,15 @@
 }
 
 .sl-mini {
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 11px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
   color: rgba(232, 236, 255, 0.65);
 }
 
 .sl-mini[data-kind] {
+  display: block;
   padding-left: 8px;
   border-left: 2px solid rgba(255, 255, 255, 0.08);
 }
@@ -160,11 +199,15 @@
 }
 
 .sl-k {
+  display: inline;
   font-weight: 900;
   letter-spacing: 0.2px;
+  line-height: 1.35;
 }
 
 .sl-v {
+  display: inline;
+  line-height: 1.35;
   color: rgba(232, 236, 255, 0.66);
 }
 
@@ -189,5 +232,17 @@
 }
 
 .sl-hidden {
-  display: none;
+  display: none !important;
+}
+
+@media (max-width: 520px) {
+  #shortlistr-root {
+    right: 10px;
+    top: 10px;
+  }
+
+  .sl-card {
+    width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
 }

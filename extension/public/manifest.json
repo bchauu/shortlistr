@@ -26,28 +26,17 @@
     "48": "assets/icons/icon48.png",
     "128": "assets/icons/icon128.png"
   },
-  "permissions": ["storage", "activeTab", "permissions", "sidePanel", "scripting"],
+  "permissions": ["storage", "activeTab", "sidePanel", "scripting"],
   "host_permissions": [
-    "https://*.linkedin.com/*",
-    "https://wellfound.com/*",
-    "https://otta.com/*",
-    "https://x.com/*",
-    "https://jobs.lever.co/*",
-    "http://localhost/*",
-    "http://127.0.0.1/*"
+    "https://*/*",
+    "http://*/*"
   ],
-  "optional_host_permissions": [
-    "https://*.onrender.com/*",
-    "https://*/*"
-  ],
+  "optional_host_permissions": [],
   "content_scripts": [
     {
       "matches": [
-        "https://*.linkedin.com/*",
-        "https://wellfound.com/*",
-        "https://otta.com/*",
-        "https://x.com/*",
-        "https://jobs.lever.co/*"
+        "https://*/*",
+        "http://*/*"
       ],
       "js": ["src/content/shortlistr.js"],
       "css": ["src/content/shortlistr.css"],

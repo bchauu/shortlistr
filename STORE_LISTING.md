@@ -71,14 +71,14 @@ Recommended sizes: 1280×800 or 640×400 (Chrome Web Store accepts multiple size
 
 ### Not affiliated
 
-Shortlistr is not affiliated with LinkedIn, X, Wellfound, or Otta.
+Shortlistr is not affiliated with LinkedIn, X, Wellfound, Otta, Lever, Ashby, Greenhouse, Workday, or UKG/Ultipro.
 
 ## Permissions justification (for review)
 
 - `storage`: save your profile/resume preferences, cached scores, and saved roles.
-- `activeTab`: analyze the current tab only when you click “Analyze”.
+- `activeTab`: support manual “Analyze this page” from the popup.
 - `scripting`: inject the content script/CSS needed to extract job text from the page.
-- `permissions`: request optional site access only when you enable auto-analyze on a specific site.
+- Host permissions: show Shortlistr on job-looking pages across websites and extract job text when you choose to analyze.
 - `sidePanel`: show the Shortlist Inbox as a side panel.
 
-Host permissions are limited to supported job sites (and your API domain). Optional host permissions are used only for user-enabled auto-analyze on additional job-board platforms.
+Shortlistr requests broad website access so it can appear on company career pages and ATS-hosted postings that Hiring Cafe links out to. The content script stays hidden unless a page looks job-related.

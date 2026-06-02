@@ -47,7 +47,7 @@ Backend URL is fixed inside the extension:
 - Update `extension/public/src/background/service_worker.js` → `FIXED_API_BASE_URL`
 - Rebuild and reload the extension
 
-Note: For local dev (`http://localhost:8787`), Chrome may prompt for permission on first sign-in (optional host permissions). For production, prefer adding your API origin to `extension/public/manifest.json` under `host_permissions` before publishing.
+Note: The extension manifest requests broad website access so the content script can appear on job-looking company career pages. For production, make sure your API origin is included in `extension/public/manifest.json` under `host_permissions` before publishing.
 
 ## Chrome Web Store release ZIP
 

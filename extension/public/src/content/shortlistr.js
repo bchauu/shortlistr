@@ -106,7 +106,16 @@
         ".posting",
         ".posting-description",
         ".posting-categories"
-      ]
+      ],
+      ashby: ["[data-testid='job-posting']", "[data-testid='job-posting-description']", "main", "article"],
+      greenhouse: ["[data-testid='job-post-description']", "#content", "main", "article"],
+      workday: [
+        "[data-automation-id='jobPostingPage']",
+        "[data-automation-id='jobPostingDescription']",
+        "[data-automation-id='jobDescription']",
+        "main"
+      ],
+      ultipro: ["#OpportunityDetail", ".opportunity-detail", "[data-automation-id='opportunityDetail']", "main"]
     };
 
     const sels = selectorsBySource[source];
@@ -173,6 +182,85 @@
       if (key.includes("job") && key.includes("id")) return true;
     }
     return false;
+  }
+
+  function hasJobContentSignal(source) {
+    return hasHighSignalJobDom(source) || pageHasJobPostingJsonLd() || (pageHasJobHeadings() && pageHasApplyCta());
+  }
+
+  function textHasJobishSignal(text) {
+    return /job|career|position|opening|opportunit|role|recruit|hiring/i.test(String(text || ""));
+  }
+
+  function urlHasJobishSignal(u) {
+    const parts = [u.hostname, u.pathname, u.search, document.title || ""]
+      .map((s) => {
+        try {
+          return decodeURIComponent(String(s || ""));
+        } catch {
+          return String(s || "");
+        }
+      })
+      .join(" ");
+    return textHasJobishSignal(parts);
+  }
+
+  function ashbyLooksLikeJobDetail(segs) {
+    const nonDetail = new Set(["", "companies", "company", "jobs", "search", "login", "signup"]);
+    if (segs.length < 2) return false;
+    if (nonDetail.has(String(segs[0] || "")) || nonDetail.has(String(segs[1] || ""))) return false;
+    return String(segs[1] || "").length >= 6;
+  }
+
+  function greenhouseLooksLikeJobDetail(segs) {
+    const idx = segs.indexOf("jobs");
+    if (idx === -1 || idx >= segs.length - 1) return false;
+    return /^[a-z0-9-]{4,}$/i.test(String(segs[idx + 1] || ""));
+  }
+
+  function workdayLooksLikeJobDetail(segs) {
+    const idx = segs.indexOf("job");
+    return idx >= 0 && idx < segs.length - 1;
+  }
+
+  function ultiproLooksLikeJobDetail(u, path) {
+    if (!path.includes("/opportunitydetail")) return false;
+    const id = String(u.searchParams.get("opportunityId") || u.searchParams.get("opportunityid") || "");
+    return looksLikeUuid(id);
+  }
+
+  function atsLooksLikeJobDetail(source, u, segs, path) {
+    if (source === "ashby") return ashbyLooksLikeJobDetail(segs);
+    if (source === "greenhouse") return greenhouseLooksLikeJobDetail(segs);
+    if (source === "workday") return workdayLooksLikeJobDetail(segs);
+    if (source === "ultipro") return ultiproLooksLikeJobDetail(u, path);
+    return false;
+  }
+
+  function shouldShowWidgetOnThisUrl() {
+    let u;
+    try {
+      u = new URL(location.href);
+    } catch {
+      return false;
+    }
+
+    const source = inferSource();
+    const path = String(u.pathname || "").toLowerCase();
+    const segs = urlSegs(path);
+
+    // Keep LinkedIn conservative; broad `/jobs` pages are noisy until a job is selected.
+    if (source === "linkedin") {
+      return urlLooksLikeJobDetail() || hasHighSignalJobDom("linkedin");
+    }
+
+    if (shouldAutoScoreOnThisUrl()) return true;
+
+    if (source === "ashby" || source === "greenhouse" || source === "workday" || source === "ultipro") {
+      if (atsLooksLikeJobDetail(source, u, segs, path)) return true;
+    }
+
+    return urlHasJobishSignal(u) || genericLooksLikeJobPosting({ segs });
   }
 
   function genericLooksLikeJobPosting({ segs }) {
@@ -242,6 +330,11 @@
       return true;
     }
 
+    if (source === "ashby" || source === "greenhouse" || source === "workday" || source === "ultipro") {
+      if (!atsLooksLikeJobDetail(source, u, segs, path)) return false;
+      return hasJobContentSignal(source);
+    }
+
     // Generic (enabled per-site): be conservative and require clear job signals.
     if (source === "unknown") {
       return genericLooksLikeJobPosting({ segs });
@@ -281,6 +374,9 @@
 
     if (source === "x") return segs.includes("status");
     if (source === "lever") return segs.length >= 2 && looksLikeUuid(String(segs[1] || ""));
+    if (source === "ashby" || source === "greenhouse" || source === "workday" || source === "ultipro") {
+      return atsLooksLikeJobDetail(source, u, segs, path);
+    }
     if (source === "unknown") return genericLooksLikeJobPosting({ segs });
     return false;
   }
@@ -292,7 +388,7 @@
       retryCount = 0;
     }
 
-    if (retryCount >= 6) return;
+    if (retryCount >= 20) return;
     retryCount += 1;
 
     if (retryTimer) clearTimeout(retryTimer);
@@ -565,6 +661,10 @@
     if (host.includes("otta.com")) return "otta";
     if (host === "x.com" || host.endsWith(".x.com")) return "x";
     if (host === "jobs.lever.co" || host.endsWith(".lever.co")) return "lever";
+    if (host === "jobs.ashbyhq.com") return "ashby";
+    if (host === "boards.greenhouse.io" || host === "job-boards.greenhouse.io") return "greenhouse";
+    if (host.endsWith(".myworkdayjobs.com") || host.endsWith(".workdayjobs.com")) return "workday";
+    if (host === "recruiting.ultipro.com") return "ultipro";
     return "unknown";
   }
 
@@ -577,7 +677,18 @@
       wellfound: ["h1"],
       otta: ["h1"],
       x: ["article h1", "h1", "title"],
-      lever: ["[data-qa='posting-name']", ".posting-headline__title", ".posting-headline h2", "h1", "h2", "title"]
+      lever: ["[data-qa='posting-name']", ".posting-headline__title", ".posting-headline h2", "h1", "h2", "title"],
+      ashby: ["h1", "[data-testid='job-title']", "title"],
+      greenhouse: ["h1", "[data-testid='job-title']", ".job__title", "title"],
+      workday: [
+        "[data-automation-id='jobPostingHeader'] h1",
+        "[data-automation-id='jobPostingHeader'] h2",
+        "[data-automation-id='jobPostingHeader']",
+        "h1",
+        "h2",
+        "title"
+      ],
+      ultipro: ["h1", "[data-automation-id='jobTitle']", ".opportunity-title", "title"]
     };
 
     const companySelectorsBySource = {
@@ -589,7 +700,11 @@
       wellfound: ["[data-test='startup-link']", "a[href*='/company/']"],
       otta: ["a[href*='/company/']", "[data-testid='company-name']"],
       x: ["article a[role='link'][href^='/']"],
-      lever: ["[data-qa='posting-company-name']", ".posting-headline__company", ".posting-headline .company", ".posting-company"]
+      lever: ["[data-qa='posting-company-name']", ".posting-headline__company", ".posting-headline .company", ".posting-company"],
+      ashby: ["[data-testid='company-name']"],
+      greenhouse: ["[data-testid='company-name']", ".company-name"],
+      workday: ["[data-automation-id='jobPostingCompany']", "[data-automation-id='company']"],
+      ultipro: ["[data-automation-id='companyName']", ".company-name"]
     };
 
     const locationSelectorsBySource = {
@@ -597,7 +712,11 @@
       wellfound: ["[data-test='JobPostingLocation']", "[data-test='location']"],
       otta: ["[data-testid='job-location']", "[data-testid='location']"],
       x: [],
-      lever: ["[data-qa='posting-location']", ".posting-headline__location", ".posting-categories__location", ".location"]
+      lever: ["[data-qa='posting-location']", ".posting-headline__location", ".posting-categories__location", ".location"],
+      ashby: ["[data-testid='job-location']", "[data-testid='location']", ".location"],
+      greenhouse: ["[data-testid='job-location']", ".job__location", ".location"],
+      workday: ["[data-automation-id='locations']", "[data-automation-id='location']", "[data-automation-id='jobPostingLocation']"],
+      ultipro: ["[data-automation-id='location']", ".opportunity-location", ".location"]
     };
 
     const descSelectorsBySource = {
@@ -618,7 +737,16 @@
       wellfound: ["[data-test='JobPostingDescription']", "main"],
       otta: ["[data-testid='job-description']", "main"],
       x: ["article"],
-      lever: ["[data-qa='posting-description']", ".posting-description", ".posting", "main"]
+      lever: ["[data-qa='posting-description']", ".posting-description", ".posting", "main"],
+      ashby: ["[data-testid='job-posting-description']", "[data-testid='job-posting']", "main", "article"],
+      greenhouse: ["[data-testid='job-post-description']", "#content", "main", "article"],
+      workday: [
+        "[data-automation-id='jobPostingDescription']",
+        "[data-automation-id='jobDescription']",
+        "[data-automation-id='jobPostingPage']",
+        "main"
+      ],
+      ultipro: ["#OpportunityDetail", ".opportunity-detail", "[data-automation-id='opportunityDetail']", "main"]
     };
 
     const title = firstText(titleSelectorsBySource[source] || ["h1", "title"]);
@@ -908,14 +1036,39 @@
     return a.url === b.url && a.title === b.title;
   }
 
-  async function analyze() {
+  async function analyze(opts = {}) {
     if (analyzing) return;
     analyzing = true;
     try {
-      const should = shouldAutoScoreOnThisUrl();
-      root.style.display = should ? "" : "none";
-      if (!should) {
+      const force = Boolean(opts.force);
+      const shouldShow = force || shouldShowWidgetOnThisUrl();
+      const shouldAutoScore = force || shouldAutoScoreOnThisUrl();
+      root.style.display = shouldShow ? "" : "none";
+      if (!shouldShow) {
         if (urlLooksLikeJobDetail()) scheduleRetryIfNeeded();
+        return;
+      }
+
+      if (!shouldAutoScore) {
+        if (urlLooksLikeJobDetail()) scheduleRetryIfNeeded();
+
+        const authed = await refreshSignedIn();
+        lastJob = null;
+        lastAnalysis = null;
+        btnShortlist.disabled = false;
+        btnShortlist.textContent = authed ? "Analyze" : "Sign in";
+        btnRescore.disabled = true;
+        setStatus(
+          urlLooksLikeJobDetail() ? "Found a job page." : "This page looks job-related.",
+          authed ? "Click Analyze to score it." : "Click Sign in."
+        );
+        setScore(null);
+        setSavedIndicator({ saved: false, alreadySaved: false, saved_via: "" });
+        setTldr("");
+        setTip("");
+        setWhy([], []);
+        setLenses([]);
+        setNeedsAndValue([], [], []);
         return;
       }
 
@@ -1054,7 +1207,13 @@
         await sendMessage({ type: "SHORTLISTR_OPEN_OPTIONS" });
         return;
       }
-      if (!lastJob || !lastAnalysis) return;
+      if (!lastAnalysis) {
+        btnShortlist.disabled = true;
+        btnShortlist.textContent = "Analyzing…";
+        await analyze({ force: true });
+        return;
+      }
+      if (!lastJob) lastJob = extractJob();
       btnShortlist.disabled = true;
       btnShortlist.textContent = "Saving…";
       const resp = await sendMessage({ type: "SHORTLISTR_SAVE_JOB", job: lastJob, analysis: lastAnalysis });

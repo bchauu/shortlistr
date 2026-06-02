@@ -980,6 +980,32 @@ function analysisCacheKeyForJob(job) {
       return `${source}:${u.origin}${u.pathname}`;
     }
 
+    if (source === "ashby") {
+      const id = String(segs[1] || "");
+      if (id) return `ashby:${id}`;
+      return `ashby:${u.origin}${u.pathname}`;
+    }
+
+    if (source === "greenhouse") {
+      const idx = segs.indexOf("jobs");
+      const id = idx >= 0 ? String(segs[idx + 1] || "") : "";
+      if (id) return `greenhouse:${id}`;
+      return `greenhouse:${u.origin}${u.pathname}`;
+    }
+
+    if (source === "workday") {
+      const idx = segs.indexOf("job");
+      const id = idx >= 0 ? String(segs[segs.length - 1] || "") : "";
+      if (id) return `workday:${u.hostname}:${id}`;
+      return `workday:${u.origin}${u.pathname}`;
+    }
+
+    if (source === "ultipro") {
+      const id = u.searchParams.get("opportunityId") || u.searchParams.get("opportunityid") || "";
+      if (id) return `ultipro:${id}`;
+      return `ultipro:${u.origin}${u.pathname}`;
+    }
+
     // Default: keep query in the key (normalizeUrl already strips common tracking params).
     return `${source || "url"}:${u.toString()}`;
   } catch {
